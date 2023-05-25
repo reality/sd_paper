@@ -135,7 +135,7 @@ def results = []
     def phenotypes = [:]
     def explicitPhenotypes = [:]
     // transaction profile is actually [0] = disease [1] = phenotypes (opposite to the actual transaction file for some stupid reason)
-    (0..<tp[1]).each { explicitPhenotypes[allPhenotypes[r.nextInt(allPhenotypes.size())]] = true }
+    (0..<tp[0]).each { explicitPhenotypes[allPhenotypes[r.nextInt(allPhenotypes.size())]] = true }
     explicitPhenotypes.each { k, t ->
       phenotypes[k] = true
       getSuperclasses('HP', k).each { s -> phenotypes[s] = true } 
@@ -143,7 +143,7 @@ def results = []
 
     def diseases = [:]
     def explicitDiseases = [:]
-    (0..<tp[0]).each { explicitDiseases[allDiseases[r.nextInt(allDiseases.size())]] = true }
+    (0..<tp[1]).each { explicitDiseases[allDiseases[r.nextInt(allDiseases.size())]] = true }
     explicitDiseases.each { k, t ->
       diseases[k] = true
       getSuperclasses('DO', k).each { s -> diseases[s] = true } 
@@ -169,7 +169,7 @@ def results = []
   results << [ 'counts': counts, 'both': both ]
 
   if(results.size() == 10) {
-    def fname = (permCount-10) + '-' + permCount
+    def fname = (permCount-9) + '-' + permCount
 
     println "Writing counts..."
     def cout = new PrintWriter(new BufferedWriter(new FileWriter("data/run_permutations/${fname}_counts.tsv")))

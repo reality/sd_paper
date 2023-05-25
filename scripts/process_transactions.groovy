@@ -89,14 +89,14 @@ def addCount = { k ->
   overallCount++
 }
 new File('./data/raw_transactions.tsv').eachLine { l ->
-  //if(i > 1000000) { return; }
   if(((++i) % 1000000) == 0) { println "Processing record $i" }
-  def f = l.tokenize('\t')
+  def f = l.split('\t')
 
   def toProcess = []
+                  //  HP, DO
   def transacRecord = [0, 0]
   def a = [:]
-  if(f[1] && f[1] != '') { 
+  if(f.size() > 1 && f[1] && f[1] != '') { 
     def explicit = f[1].tokenize(';')
     explicit.each { c ->
       a[c] = true
@@ -107,7 +107,7 @@ new File('./data/raw_transactions.tsv').eachLine { l ->
     transacRecord[0] = explicit.size()
   } 
   def b = [:]
-  if(f[2] && f[2] != '') { 
+  if(f.size() > 2 && f[2] && f[2] != '') { 
     def explicit = f[2].tokenize(';')
     explicit.each { c ->
       b[c] = true

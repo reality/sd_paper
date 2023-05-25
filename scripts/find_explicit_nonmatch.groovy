@@ -44,11 +44,11 @@ new File('data/get_ic/phens_ic.tsv').splitEachLine('\t') {
 }
 
 def labels = [:]
-new File('../../synonym_expansion_validation/do/disease_unexpanded.txt').splitEachLine('\t') {
+new File('../synonym_expansion_validation/do/disease_unexpanded.txt').splitEachLine('\t') {
   it[1] = it[1].tokenize('/').last().replace('_',':')
   if(!labels.containsKey(it[1])) { labels[it[1]] = it[0] }
 }
-new File('../../synonym_expansion_validation/hpo/unexpanded_all.txt').splitEachLine('\t') {
+new File('../synonym_expansion_validation/hpo/unexpanded_all.txt').splitEachLine('\t') {
   it[1] = it[1].tokenize('/').last().replace('_',':')
   if(!labels.containsKey(it[1])) { labels[it[1]] = it[0] }
 }
@@ -58,7 +58,7 @@ def PARENTFIX = false
 
 def litAssoc = [:]
 def disCutoffs = [:]
-new File('./data/uniqise_litmaps/final_mappings.tsv').splitEachLine('\t') {
+new File('./data/final_mappings.tsv').splitEachLine('\t') {
   if(PARENTFIX && ic[it[1]] < IC_CUTOFF) { return; }
   if(!litAssoc.containsKey(it[0])) {
     litAssoc[it[0]] = []

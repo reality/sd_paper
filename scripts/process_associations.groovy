@@ -24,18 +24,18 @@ println "Loading counts..."
 
 def counts = [:]
 new File('data/process_transactions/counts.tsv').splitEachLine('\t') {
-  def val = Double.parseDouble(it[1])
+  def val = Long.parseLong(it[1])
   counts[it[0]] = [ value: val, perms: [ val ] ]
 }
 
-def oTotal = counts.collect { it.getValue().value }.sum()
+/*def oTotal = counts.collect { it.getValue().value }.sum()
 counts.each {
   def propT = it.getValue().value / oTotal
   it.getValue().value = propT
   it.getValue().perms[0] = propT
-}
+}*/
 
-println "Loaded ${counts.size()} classes with $oTotal transacs."
+println "Loaded ${counts.size()} classes"
 
 println 'Loading permutations'
 def assocFiles = []
@@ -60,34 +60,32 @@ countFiles.eachWithIndex { f, o ->
   }
 }
 
-fileCounts.each { fn, ps ->
+/*fileCounts.each { fn, ps ->
   ps.each { cs ->
     def total = cs.collect { it.getValue() }.sum()
     cs.each { k, v ->
       counts[k].perms << v/total
     }
   }
-}
+}*/
 
 println "Finished loading count permutations..."
 def zout = new PrintWriter(new BufferedWriter(new FileWriter("data/process_associations/counts.tsv")))
-def COUNT_P_CUTOFF = 0.001
+def COUNT_P_CUTOFF = 0.01
 def icR = 0
-cutoff_counts = counts.each { k, v ->
+cutoff_counts = counts.findAll { k, v ->
   //if(ic.containsKey(k) && ic[k] <= IC_CUTOFF) { icR++ ; return false; } 
 
   def pVal = new Double(v.perms.findAll { it >= v.value }.size() / v.perms.size()).round(4)
 
-  zout.println("$k\t$pVal")
+println v.value
+  zout.println("$k\t$pVal\t${v.value}")
 
-  totalTests++
-/*
-  if(k =~ /HP/) { return true;}
-  if(!(k =~ /DOID/)) { return false; }
-
-  totalTests++
+  //totalTests++
   //pVal <= COUNT_P_CUTOFF ? true : false
-}*/
+
+  println v.value.intValue()
+  v.value > 10000
 }
 zout.flush() ; zout.close()
 
