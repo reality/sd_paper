@@ -111,7 +111,8 @@ new File('./data/raw_transactions.tsv').eachLine { l ->
     def explicit = f[2].tokenize(';')
     explicit.each { c ->
       b[c] = true
-      getSuperclasses(c).each { s -> b[s] = true }
+      // we are no longer doing DO parents
+      //getSuperclasses(c).each { s -> b[s] = true }
       allDiseases[c] = true
     }
     b.each { k, t -> addCount(k) }

@@ -6,6 +6,16 @@ def DATA_DIR = '../data_ws/'
 
 def purchasedDoids = new File('./data/mapped_purchase_query_doid.csv').text.split('\n').collect { it.tokenize(',').last() }
 
+
+def mappedTaxTerms = [:] 
+new File('./data/mapped_taxterm.tsv').splitEachLine('\t') {
+  if(!mappedTaxTerms.containsKey(it[0])) { mappedTaxTerms[it[0]] = [] } 
+  mappedTaxTerms[it[0]] << it[1].replace(':', '_').toLowerCase() // silly
+  purchasedDoids << it[1].toUpperCase()
+} 
+
+purchasedDoids.unique(true)
+
 def counter = 0
 new File(DATA_DIR).eachFile { fi ->
   if(fi.getName() =~ /csv$/) { 
@@ -28,6 +38,10 @@ new File(DATA_DIR).eachFile { fi ->
           if(record[4] != '') {
             ps2 = record[4]
               .tokenize(';')
+              .collect {
+                mappedTaxTerms.containsKey(it) ? mappedTaxTerms[it] : it
+              }
+              .flatten()
               .collect { 
                 def m = (it =~ /doid_\d+/)
                 m.size() > 0 ? m[0].toUpperCase() : null 

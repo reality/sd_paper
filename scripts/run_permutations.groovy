@@ -146,7 +146,7 @@ def results = []
     (0..<tp[1]).each { explicitDiseases[allDiseases[r.nextInt(allDiseases.size())]] = true }
     explicitDiseases.each { k, t ->
       diseases[k] = true
-      getSuperclasses('DO', k).each { s -> diseases[s] = true } 
+      //getSuperclasses('DO', k).each { s -> diseases[s] = true } 
     }
 
     def toProcess = diseases + phenotypes

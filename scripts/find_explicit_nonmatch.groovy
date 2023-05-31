@@ -58,7 +58,7 @@ def PARENTFIX = false
 
 def litAssoc = [:]
 def disCutoffs = [:]
-new File('./data/final_mappings.tsv').splitEachLine('\t') {
+new File('./data/match_litphens/final_mappings.tsv').splitEachLine('\t') {
   if(PARENTFIX && ic[it[1]] < IC_CUTOFF) { return; }
   if(!litAssoc.containsKey(it[0])) {
     litAssoc[it[0]] = []
@@ -97,7 +97,7 @@ smAssoc.each { k, v ->
 }
 new File('data/find_explicit_nonmatch/matched_profiles.tsv').text = mout.join('\n')
 
-println "Matched diseases: ${matchedDiseases.size()} with $matchCount social phens and $litcount literature phens"
+println "Matched diseases: ${matchedDiseases.size()}  (of ${smAssoc.size()}) with $matchCount social phens and $litcount literature phens"
 
 println 'signif' + matchedDiseases.collect { it.getValue().findAll{ v -> v[2] == 'TRUE' }.size() }.sum()
 
