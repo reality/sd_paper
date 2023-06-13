@@ -30,6 +30,6 @@ This takes the data/raw_transactions.tsv, propagates phenotypes, calculates NPMI
 
 Run the R script!
 
-## groovy find_explicit_nonmatch.groovy
+## groovy scripts/find_explicit_nonmatch.groovy
 
 ## groovy scripts/create_output_json.groovy

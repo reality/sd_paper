@@ -1,3 +1,5 @@
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import groovy.json.*
 
 def labels = [:]
@@ -38,4 +40,14 @@ new File('./data/find_explicit_nonmatch/matched_profiles.tsv').splitEachLine('\t
   }
 }
 
-new File('data/create_output_json/data.json').text = new JsonBuilder(output).toPrettyString()
+LocalDateTime now = LocalDateTime.now()
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd/HH:mm:ss")
+String formattedDateTime = now.format(formatter)
+
+def fullOut = [
+  versionString: formattedDateTime, 
+  author: 'https://orcid.org/0000-0001-9227-0670',
+  profiles: output
+]
+
+new File('data/create_output_json/data.json').text = new JsonBuilder(fullOut).toPrettyString()

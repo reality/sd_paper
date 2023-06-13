@@ -85,7 +85,7 @@ println v.value
   //pVal <= COUNT_P_CUTOFF ? true : false
 
   println v.value.intValue()
-  v.value > 10000
+  v.value > 6831
 }
 zout.flush() ; zout.close()
 
