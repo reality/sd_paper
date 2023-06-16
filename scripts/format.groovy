@@ -4,7 +4,7 @@ import static org.apache.commons.csv.CSVFormat.*
 
 def DATA_DIR = '../data_ws/'
 
-def purchasedDoids = new File('./data/mapped_purchase_query_doid.csv').text.split('\n').collect { it.tokenize(',').last() }
+def purchasedDoids = new File('./data/mapped_purchase_query_doid.csv').text.split('\n').collect { it.tokenize(',').last().trim() }
 
 
 def mappedTaxTerms = [:] 
@@ -15,6 +15,9 @@ new File('./data/mapped_taxterm.tsv').splitEachLine('\t') {
 } 
 
 purchasedDoids.unique(true)
+
+println purchasedDoids.size()
+System.exit()
 
 def counter = 0
 new File(DATA_DIR).eachFile { fi ->
