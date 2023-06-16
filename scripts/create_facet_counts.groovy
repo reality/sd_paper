@@ -54,26 +54,40 @@ def facetProps = facets.collectEntries {
 
 def allScores = new JsonSlurper().parseText(new File('data/create_output_json/data.json').text).profiles
 
+def novelFacetCounts = [:]
 def facetCounts = [:]
 facets.each { facet ->
   facetCounts[facet[0]] = [
     ws: 0,
-    dp: 0
+    dp: 0,
+    wsn: 0,
   ]
 
   def ce = fac.getOWLClass(IRI.create(facet[1]))
   def scs = reasoner.getSubClasses(ce, false).collect { it.getRepresentativeElement().getIRI().toString().split('/').last()replace('_',':') }.unique(false)
   
   allScores.each { doid, ass ->
-    ass.bldp.each { k, v -> if(scs.contains(k)) { facetCounts[facet[0]].ws++ } } 
-    ass.smdp.each { k, v -> if(scs.contains(k)) { facetCounts[facet[0]].dp++ } } 
+    ass.smdp.each { k, v -> 
+      if(scs.contains(k)) { 
+        facetCounts[facet[0]].ws++ 
+        if(v.novel) {
+          facetCounts[facet[0]].wsn++
+        }
+      } 
+    } 
+    ass.bldp.each { k, v -> if(scs.contains(k)) { 
+      facetCounts[facet[0]].dp++ 
+    } } 
   }
 }
 
 def dTotal = facetCounts.collect { k, v -> v.dp }.sum()
-facetCounts.each { k, v -> v.dp = (v.dp / dTotal) - facetProps[k] }
+facetCounts.each { k, v -> v.dp = (v.dp / dTotal) } //- facetProps[k] }
 
 def wTotal = facetCounts.collect { k, v -> v.ws }.sum()
-facetCounts.each { k, v -> v.ws = v.ws / wTotal - facetProps[k] }
+facetCounts.each { k, v -> v.ws = v.ws / wTotal } // - facetProps[k] }
 
-new File('data/create_facet_counts/facet_counts.tsv').text = 'facet\tSocial Media\tLiterature\n' + facetCounts.collect { k, v -> "$k\t${v.ws}\t${v.dp}" }.join('\n')
+def wnTotal = facetCounts.collect { k, v -> v.wsn }.sum()
+facetCounts.each { k, v -> v.wsn = v.wsn / wnTotal } // - facetProps[k] }
+
+new File('data/create_facet_counts/facet_counts.tsv').text = 'facet\tSocial Media\tLiterature\tSocial Media Novel\n' + facetCounts.collect { k, v -> "$k\t${v.ws}\t${v.dp}\t${v.wsn}" }.join('\n')
