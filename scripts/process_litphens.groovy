@@ -121,6 +121,7 @@ new File('data/bldp_raw/PheneBank_Associations.tsv').splitEachLine('\t') { f ->
 def litAssoc = [:]
 def i = 0
 def unMapped = []
+def mappingOut = [:]
 // so here we have a mix of MONDOs and ICDs in MONDOs and ICDs
 rawLitDiseases.each { key, d ->
   println "investigating $key (${++i}/${rawLitDiseases.size()})"
@@ -141,6 +142,7 @@ rawLitDiseases.each { key, d ->
   }
 
   doids.unique(true)
+  mappingOut[key] = doids;
 
   println doids
   println "total unique mappings ${doids.size()}"
@@ -161,6 +163,7 @@ rawLitDiseases.each { key, d ->
 println 'done with the mapching'
 
 new File('./data/match_litphens/unmapped.txt').text = unMapped.join('\n')
+new File('./data/match_litphens/doid_mappings.tsv').text = mappingOut.collect { k, v -> "$k\t${v.join(';')}" }.join('\n')
 
 def mout = new PrintWriter(new BufferedWriter(new FileWriter("./data/match_litphens/final_mappings.tsv")))
 litAssoc.each { doid, hpMap ->

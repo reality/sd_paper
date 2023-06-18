@@ -2,6 +2,11 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import groovy.json.*
 
+def maps = [:]
+new File('data/match_litphens/doid_mappings.tsv').splitEachLine('\t') {
+  maps[it[0]] = it[1].tokenize(';')
+}
+
 def labels = [:]
 new File('../synonym_expansion_validation/do/disease_unexpanded.txt').splitEachLine('\t') {
   it[1] = it[1].tokenize('/').last().replace('_',':')
@@ -23,6 +28,7 @@ new File('./data/find_explicit_nonmatch/matched_profiles.tsv').splitEachLine('\t
   output[it[0]] = [ 
     id: it[0],
     label: labels[it[0]],
+    mappings: maps[it[0]],
     bldp: [:], 
     smdp: [:] 
   ]

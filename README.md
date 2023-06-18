@@ -33,3 +33,13 @@ Run the R script!
 ## groovy scripts/find_explicit_nonmatch.groovy
 
 ## groovy scripts/create_output_json.groovy
+
+# Subsequent analysis
+
+## analysis.R 
+
+This contains the code to look at perplexity, facets, radarcharts etc.
+
+## groovy scripts/create_ws_dis-dis_network.groovy
+
+This will create the similarity matrix between diseases in the BL-DP and the SM-DP.
