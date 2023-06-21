@@ -142,7 +142,10 @@ rawLitDiseases.each { key, d ->
   }
 
   doids.unique(true)
-  mappingOut[key] = doids;
+  doids.each {
+    if(!mappingOut.containsKey(it)) { mappingOut[it] = [] }
+    mappingOut[it] << key+':'+d.phens.size()
+  }
 
   println doids
   println "total unique mappings ${doids.size()}"

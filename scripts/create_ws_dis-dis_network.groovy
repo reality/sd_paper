@@ -138,7 +138,6 @@ orgList.eachParallel { vals ->
         sim = 0 
       }
 
-      if(d1 == d2) { return; } 
       results << [
         d1,
         d2,

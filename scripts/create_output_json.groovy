@@ -4,7 +4,7 @@ import groovy.json.*
 
 def maps = [:]
 new File('data/match_litphens/doid_mappings.tsv').splitEachLine('\t') {
-  maps[it[0]] = it[1].tokenize(';')
+  maps[it[0]] = it[1] ? it[1].tokenize(';') : []
 }
 
 def labels = [:]

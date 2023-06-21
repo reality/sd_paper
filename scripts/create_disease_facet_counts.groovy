@@ -39,70 +39,59 @@ import groovy.json.*
 def manager = OWLManager.createOWLOntologyManager()
 def fac = manager.getOWLDataFactory()
 def config = new SimpleConfiguration()
-
 def elkFactory = new ElkReasonerFactory() // cute
-
-def diseaseOntology = manager.loadOntologyFromOntologyDocument(new File("data/hp.owl"))
+def diseaseOntology = manager.loadOntologyFromOntologyDocument(new File("data/doid.owl"))
 def reasoner = elkFactory.createReasoner(diseaseOntology, config)
 
-def facets = new File('data/facets.txt').text.split('\n').collect { it.split('\t') }
-def allAbnormalities = reasoner.getSubClasses(fac.getOWLClass(IRI.create('http://purl.obolibrary.org/obo/HP_0000118')), false).collect { it.getRepresentativeElement().getIRI().toString() }.unique(false).size()
-def facetProps = facets.collectEntries { 
-  def ce = fac.getOWLClass(IRI.create(it[1]))
-  [(it[0]): reasoner.getSubClasses(ce, false).collect { it.getRepresentativeElement().getIRI().toString() }.unique(false).size() / allAbnormalities]
-}
 
-def bPWriter = new BufferedWriter(new FileWriter('data/create_facet_counts/bldp_facet_profiles.tsv'))
-def sPWriter = new BufferedWriter(new FileWriter('data/create_facet_counts/smdp_facet_profiles.tsv'))
-def sPNWriter = new BufferedWriter(new FileWriter('data/create_facet_counts/smdp_novel_facet_profiles.tsv'))
-def c1 = 0
-def c2 = 0
-def c3 = 0
+def hpOntology = manager.loadOntologyFromOntologyDocument(new File("data/hp.owl"))
+def hpReasoner = elkFactory.createReasoner(hpOntology, config)
+
+def facets = new File('data/disease_facets.tsv').text.split('\n').collect { it.split('\t') }
+
 def allScores = new JsonSlurper().parseText(new File('data/create_output_json/data.json').text).profiles
 
-def novelFacetCounts = [:]
+def dFCounts = [:]
 def facetCounts = [:]
+def conScs = hpReasoner.getSubClasses(fac.getOWLClass(IRI.create('http://purl.obolibrary.org/obo/HP_0025142')), false).collect { it.getRepresentativeElement().getIRI().toString().split('/').last()replace('_',':') }.unique(false)
+println conScs
 facets.each { facet ->
   facetCounts[facet[0]] = [
-    ws: 0,
-    dp: 0,
     wsn: 0,
+    cs: 0,
+    blcs: 0
   ]
+  dFCounts[facet[0]] = 0
 
   def ce = fac.getOWLClass(IRI.create(facet[1]))
   def scs = reasoner.getSubClasses(ce, false).collect { it.getRepresentativeElement().getIRI().toString().split('/').last()replace('_',':') }.unique(false)
   
   allScores.each { doid, ass ->
-    ass.smdp.each { k, v -> 
-      if(scs.contains(k)) { 
-        facetCounts[facet[0]].ws++ 
-        if(v.novel) {
-          facetCounts[facet[0]].wsn++
-          sPNWriter.write("${c3++}\t$k\tsmdp_novel_${facet[0].trim()}\n")
-        }
-        sPWriter.write("${c1++}\t$k\tsmdp_all_${facet[0].trim()}\n")
-      } 
-    } 
-    ass.bldp.each { k, v -> if(scs.contains(k)) { 
-      facetCounts[facet[0]].dp++ 
-        bPWriter.write("${c2++}\t$k\tbldp_all_${facet[0].trim()}\n")
-    } 
-    } 
+    if(scs.contains(doid)) {
+      facetCounts[facet[0]].wsn += ass.smdp.findAll { k, v -> v.novel }.size()
+
+      def novelCons = ass.smdp.findAll { k, v -> conScs.contains(k) }.size()
+      facetCounts[facet[0]].cs += novelCons
+
+      facetCounts[facet[0]].blcs += ass.bldp.findAll { k, v -> conScs.contains(k) }.size()
+
+      dFCounts[facet[0]]++
+    }
   }
 }
 
-bPWriter.flush() ; bPWriter.close()
-sPWriter.flush() ; sPWriter.close()
-sPNWriter.flush() ; sPNWriter.close()
 
-def dTotal = facetCounts.collect { k, v -> v.dp }.sum()
-facetCounts.each { k, v -> v.dp = (v.dp / dTotal) / facetProps[k] }
 
-def wTotal = facetCounts.collect { k, v -> v.ws }.sum()
-facetCounts.each { k, v -> v.ws = (v.ws / wTotal)  / facetProps[k] }
-
+// total of novel phenotypes
 def wnTotal = facetCounts.collect { k, v -> v.wsn }.sum()
-facetCounts.each { k, v -> v.wsn = (v.wsn / wnTotal)  / facetProps[k] }
+def totalCon = facetCounts.collect { k, v -> v.cs }.sum()
+def totalBlCon = facetCounts.collect { k, v -> v.blcs }.sum()
+println totalCon
+facetCounts.each { k, v -> 
+  v.wsn = (v.wsn / wnTotal)
+  v.dc = (dFCounts[k] / dFCounts.collect { it.getValue() }.sum()) 
+  v.blcs = (v.blcs / totalBlCon) / v.dc
+  v.cs = (v.cs / totalCon) / v.dc
+}
 
-def out = 'facet\tSocial Media\tLiterature\tSocial Media Novel\n' + facetCounts.collect { k, v -> "$k\t${v.ws}\t${v.dp}\t${v.wsn}" }.join('\n').replaceAll('0E\\+10','0')
-new File('data/create_facet_counts/facet_counts.tsv').text = out
+new File('data/create_disease_facet_counts/facet_counts.tsv').text = 'facet\tDiseases\tSocial Media Novel\tBLDP Constitutional Symptoms\tConstitutional Symptoms\n' + facetCounts.collect { k, v -> "$k\t${v.dc}\t${v.wsn}\t${v.blcs}\t${v.cs}" }.join('\n')
