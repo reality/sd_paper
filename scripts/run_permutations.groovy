@@ -135,6 +135,7 @@ def results = []
     def phenotypes = [:]
     def explicitPhenotypes = [:]
     // transaction profile is actually [0] = disease [1] = phenotypes (opposite to the actual transaction file for some stupid reason)
+    // UPDATE: it's actually the right way around now
     (0..<tp[0]).each { explicitPhenotypes[allPhenotypes[r.nextInt(allPhenotypes.size())]] = true }
     explicitPhenotypes.each { k, t ->
       phenotypes[k] = true
