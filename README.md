@@ -36,6 +36,8 @@ Run the R script!
 
 # Subsequent analysis
 
+## groovy scripts/create_facet_counts.groovy
+
 ## analysis.R 
 
 This contains the code to look at perplexity, facets, radarcharts etc.
@@ -47,3 +49,7 @@ This will create the similarity matrix between diseases in the BL-DP and the SM-
 ## groovy scripts/get_group_ic.groovy
 
 calculate average IC for constitutional sympyoms
+
+# Clinical Review
+
+We don't include the original JSON files with the responses, but the data sheet that it produces is stored in *data/review/responses.tsv*

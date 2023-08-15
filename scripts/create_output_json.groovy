@@ -2,6 +2,8 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import groovy.json.*
 
+def toRemove = new File('data/review/correctness.tsv').text.split('\n').findAll { it.split('\t')[1] == 'Y' }.collect { it.split('\t')[0] }
+
 def maps = [:]
 new File('data/match_litphens/doid_mappings.tsv').splitEachLine('\t') {
   maps[it[0]] = it[1] ? it[1].tokenize(';') : []
@@ -33,6 +35,7 @@ new File('./data/find_explicit_nonmatch/matched_profiles.tsv').splitEachLine('\t
     smdp: [:] 
   ]
   novel[it[0]].each {
+    if(toRemove.contains(it[2])) { return; }
     output[it[0]].smdp[it[2]] = [
       label: labels[it[2]],
       laconic: it[4].tokenize(':')[1] == 'true',
