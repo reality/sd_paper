@@ -68,7 +68,7 @@ facets.each { facet ->
   
   allScores.each { doid, ass ->
     if(scs.contains(doid)) {
-      facetCounts[facet[0]].wsn += ass.smdp.findAll { k, v -> v.novel }.size()
+      facetCounts[facet[0]].wsn += ass.smdp.findAll { k, v -> v.novel && v.significant }.size()
 
       def novelCons = ass.smdp.findAll { k, v -> conScs.contains(k) }.size()
       facetCounts[facet[0]].cs += novelCons

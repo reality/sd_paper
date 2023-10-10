@@ -74,6 +74,7 @@ facets.each { facet ->
   
   allScores.each { doid, ass ->
     ass.smdp.each { k, v -> 
+      if(!v.significant) { return; }
       if(scs.contains(k)) { 
         facetCounts[facet[0]].ws++ 
         if(v.novel) {

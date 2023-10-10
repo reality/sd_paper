@@ -37,6 +37,7 @@ Run the R script!
 # Subsequent analysis
 
 ## groovy scripts/create_facet_counts.groovy
+## groovy scripts/create_disease_facet_counts.groovy
 
 ## analysis.R 
 
@@ -50,6 +51,14 @@ This will create the similarity matrix between diseases in the BL-DP and the SM-
 
 calculate average IC for constitutional sympyoms
 
+## groovy scripts/create_klarigi_input_all.groovy
+
 # Clinical Review
 
 We don't include the original JSON files with the responses, but the data sheet that it produces is stored in *data/review/responses.tsv*
+
+# Table 2
+
+This is produced using Klarigi 
+
+klarigi --debug --data data/create_facet_counts/smdp_constitutional.tsv -o data/hp.owl --verbose --output-type=latex --output-scores --scores-only --egl --min-exclusion=0 --max-inclusion=0.9 --min-ic=0.4 --min-inclusion=0
