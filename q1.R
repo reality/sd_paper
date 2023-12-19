@@ -32,13 +32,20 @@ write_tsv(dfs, 'smdp_hypotheses.tsv')
 q1 = responses[responses$question == 'q1',]
 q1$wrong =                   q1$response == 'Not established and definitely wrong'
   #q1$response == 'Not established and unlikely' |
-            
+          
 q1$wrong[is.na(q1$wrong)] = TRUE
-contingency_table <- table(q1$bldp, q1$wrong) 
+contingency_table <- table(q1$bldp, q1$response) 
                            
 print(contingency_table)
 result <- chisq.test(contingency_table)
 print(result)
+
+q2 = responses[responses$question == 'q2',]
+contingency_table <- table(q2$bldp, q2$response) 
+print(contingency_table)
+result <- chisq.test(contingency_table)
+print(result)
+
 
 phi = cor(q1$smdp, q1$wrong, method = "pearson")
 n <- length(q1$wrong)
@@ -59,7 +66,7 @@ nrow(q1bl[q1bl$wrong == F,]) / (nrow(q1bl[q1bl$wrong == F,]) + nrow(q1bl[q1bl$wr
 q1sm = q1[q1$smdp == T,]
 nrow(q1sm[q1sm$wrong == F,]) / (nrow(q1sm[q1sm$wrong == F,]) + nrow(q1sm[q1sm$wrong == T,]))
 
-extract_question <- function(dfe, q, smdp = F, sig = T, order) {
+extract_question <- function(dfe, q, smdp = F, sig = T, order = NA) {
   lvls <- unique(dfe[dfe$question == q,]$response)
   
   if(smdp) {
@@ -76,15 +83,17 @@ extract_question <- function(dfe, q, smdp = F, sig = T, order) {
   }
   
   names(df) <- c("Category", "Frequency")
+  print(order)
+  print(df$Category)
   if(!is.na(order)) {
-    df$Category <- factor(df, levels = order)
+    df$Category <- factor(df$Category, levels = order)
   }
   
   df$Proportion <- signif(df$Frequency / sum(df$Frequency), digits=3)
   
   return(df)
 }
-plot_vombo <- function(combo, title, subtitle, labels = c('SMDP', 'BLDP')) {
+plot_vombo <- function(combo, title, subtitle, labels = c('SMP', 'BDLP')) {
   return(ggplot(combo, aes(x = Category, y = Proportion, fill = factor(rep(labels, each = length(combo$Category)/2)))) +
     geom_bar(stat = "identity", position = "dodge") +
     geom_text(aes(label = Proportion), position = position_dodge(width = 0.9), vjust = -0.5, size=2.5) +
@@ -126,7 +135,7 @@ g2 <- plot_vombo(rbind(extract_question(responses, 'q2', T), extract_question(re
            "\"What kind of association is this?\"")
 g3 <- plot_vombo(rbind(extract_question(responses, 'q3', T), extract_question(responses, 'q3', F)), 
            "Proportion of Responses to Q3", 
-           "\"How often do you recognise this association in the course your clinical practice for this disease?\"")
+           "\"How often do you recognise this association in the course of your clinical practice for this disease?\"")
 
 print(g1)
 extract_question(responses, 'q1', T)
@@ -140,9 +149,17 @@ sar <- read_delim("~/spvis/data/responses.tsv",
 sar <- sar[complete.cases(sar),]
 sar <- sar[sar$smdp == T,]
 
-print(plot_vombo(rbind(extract_question(sar, 'q1', T, F), extract_question(sar, 'q1', T)),
-                 "heiojfapodsfaojd", "fijdosajfiods", c("All SMDP", "Significant SMDP")))
+print(plot_vombo(rbind(extract_question(sar, 'q1', T, F, order = q1_order), extract_question(sar, 'q1', T, T, order = q1_order)),
+                 "Proportion of Responses to Q1", 
+                 "\"Is this association established in literature, treatment guidelines, or policy discussing this disease?\"", c("All SMDP", "Significant SMDP")))
                                                                   
+print(plot_vombo(rbind(extract_question(sar, 'q2', T, F, NA), extract_question(sar, 'q2', T, T, NA)),
+                 "Proportion of Responses to Q2", 
+                 "\"What kind of association is this?\"", c("All SMDP", "Significant SMDP")))
+# we can correlate this with how often the overall types were seen
+print(plot_vombo(rbind(extract_question(sar, 'q3', T, F, NA), extract_question(sar, 'q3', T, T, NA)),
+                 "Proportion of Responses to Q3", 
+                 "\"How often do you recognise this association in the course of your clinical practice for this disease?\"", c("All SMDP", "Significant SMDP")))
 
 wilcox.test(extract_question('q3', T)$Proportion, 
             extract_question('q3', F)$Proportion, 

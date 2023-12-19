@@ -33,7 +33,7 @@ par(mar = c(0,0,0,0))
            cglwd=.8,
            vlcex=.9,
            )
-legend(x=.9, y=1, legend = c("SM-DP", "BDL-DP"), bty = "n", pch=20 , col=colors_in , text.col = "grey", cex=1, pt.cex=2)
+legend(x=.9, y=1, legend = c("SMP", "BDLP"), bty = "n", pch=20 , col=colors_in , text.col = "grey", cex=1, pt.cex=2)
 dev.off()
 
 #novel 
@@ -120,7 +120,7 @@ radarchart(facet_counts_f,
            cglwd=.8,
            vlcex=.9,
 )
-legend(x=.6, y=1.2, legend = c("BLDP", "SMDP"), bty = "n", pch=20 , col=colors_in , text.col = "grey", cex=1, pt.cex=2)
+legend(x=.6, y=1.2, legend = c("BDLP", "SMP"), bty = "n", pch=20 , col=colors_in , text.col = "grey", cex=1, pt.cex=2)
 dev.off()
 cor.test(facet_counts$`BLDP Constitutional Symptoms`, facet_counts$`Constitutional Symptoms`, method='spearman')
 cor.test(facet_counts$Diseases, facet_counts$`Social Media Novel`, method='spearman')

@@ -17,7 +17,6 @@ new File('./data/mapped_taxterm.tsv').splitEachLine('\t') {
 purchasedDoids.unique(true)
 
 println purchasedDoids.size()
-System.exit()
 
 def counter = 0
 new File(DATA_DIR).eachFile { fi ->
@@ -55,7 +54,7 @@ new File(DATA_DIR).eachFile { fi ->
           }
 
           if(ps2.size() > 0) {
-            println counter + '\t' + ps.join(';') + '\t' + ps2.join(';')
+            println record[0] + '\t' + ps.join(';') + '\t' + ps2.join(';')
           }
         } catch(e) { 
           println e.toString() 
