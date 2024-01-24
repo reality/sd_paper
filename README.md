@@ -1,4 +1,11 @@
-# Order of execution
+This is the GitHub repository for the social media phenotype paper, currently live as a preprint [here](https://www.medrxiv.org/content/10.1101/2023.12.19.23300163v1). Please contact k.slater [AT] bham.ac.uk with any questions.
+
+* The processed results of the analysis, with the BDLP and SMP associations, can be found in ./data.json.
+* You can also browse the results [here](https://phenotype.digital/) (it is a bit friendlier)
+* The rest of the files concern scripts and code for evaluation (in scripts/) and intermediate data or external public data in (data/)
+* The original transactions are not made available, according to our licence agreement with White Swan.
+
+# Scripts in Order of Execution
 
 ## Processing literature phenotypes
 
