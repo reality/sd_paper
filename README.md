@@ -66,6 +66,6 @@ We don't include the original JSON files with the responses, but the data sheet 
 
 # Table 2
 
-This is produced using Klarigi 
+This is produced using [Klarigi](https://github.com/reality/klarigi) 
 
 klarigi --debug --data data/create_facet_counts/smdp_constitutional.tsv -o data/hp.owl --verbose --output-type=latex --output-scores --scores-only --egl --min-exclusion=0 --max-inclusion=0.9 --min-ic=0.4 --min-inclusion=0
