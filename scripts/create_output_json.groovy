@@ -4,6 +4,14 @@ import groovy.json.*
 
 def toRemove = new File('data/review/correctness.tsv').text.split('\n').findAll { it.split('\t')[1] == 'Y' }.collect { it.split('\t')[0] }
 
+def omims = new File('data/extract_crossrefs_and_labels/doid.tsv').text.split('\n').collect { it.tokenize('\t') }.findAll { it[1] =~ /OMIM/ }.collect { it[0] = it[0].split('/').last().replace('_', ':') ; it }
+println omims
+def hpoa = [:]
+new File('data/phenotype.hpoa').splitEachLine('\t') {
+  if(!hpoa.containsKey(it[0])) { hpoa[it[0]] = [] }
+  hpoa[it[0]] << it[3]
+}
+
 def maps = [:]
 new File('data/match_litphens/doid_mappings.tsv').splitEachLine('\t') {
   maps[it[0]] = it[1] ? it[1].tokenize(';') : []
@@ -32,8 +40,15 @@ new File('./data/find_explicit_nonmatch/matched_profiles.tsv').splitEachLine('\t
     label: labels[it[0]],
     mappings: maps[it[0]],
     bldp: [:], 
-    smdp: [:] 
+    smdp: [:],
+    hpoa: []
   ]
+
+  def omimMatch = omims.find { o -> it[0] == o[0] }
+  if(omimMatch) {
+    output[it[0]].hpoa = hpoa[omimMatch[1]]
+  }
+
   novel[it[0]].each {
     if(toRemove.contains(it[2])) { return; }
     output[it[0]].smdp[it[2]] = [
