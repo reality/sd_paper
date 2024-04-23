@@ -127,8 +127,8 @@ cor.test(facet_counts$Diseases, facet_counts$`Social Media Novel`, method='spear
 
 library(readr)
 library(heatmaply)
-BiocManager::install("pheatmap")
-BiocManager::install("xtable")
+#BiocManager::install("pheatmap")
+#BiocManager::install("xtable")
 
 # Read the data
 data <- read.csv('data/facet_by_disease/matrix.csv',  row.names = 1)
@@ -159,7 +159,7 @@ pheatmap(matrev,
               cluster_cols = FALSE)
 dev.off()
 
-s <- heatmaply(matrev, 
+heatmaply(matrev, 
           colors = my_palette,
           labRow = rownames(matrev), 
           labCol = colnames(matrev), 
@@ -168,10 +168,14 @@ s <- heatmaply(matrev,
           Rowv = F,
           Colv = F,
           plot_method='ggplot',
+          fontsize_row = 13,
+            fontsize_col=13,
           k_col=2,
-          show_dendrogram = F)
+          show_dendrogram = F,
+          dpi=300,
+          file='heatmap.png')
 
-ggsave(s)
+ggsave('heatmap.png', s)
 saveWidget(hmplot, file = "heatmap.png", selfcontained = FALSE)
 
 rownames(mat)

@@ -2,6 +2,14 @@ library(readr)
 responses <- read_delim("~/spvis/data/responses.tsv", 
                         "\t", escape_double = FALSE, trim_ws = TRUE)
 
+r2<- read_delim("~/spvis/data/q1p.tsv", 
+                        "\t", escape_double = FALSE, trim_ws = TRUE)
+r2 <- r2[r2$disease == 'DOID:0111253' & r2$question == 'q1',]
+
+plot_vombo(rbind(extract_question(r2, 'q1', T, order = q1_order), extract_question(responses, 'q1', F, order = q1_order)))
+d<-plot_vombo(rbind(extract_question(r2, 'q1', T, order = q1_order), extract_question(r2, 'q1', F, order = q1_order)), 
+                 "Proportion of Responses to Q1 for Neurofibromatosis 1", 
+                 "\"Is this association established in literature, treatment guidelines, or policy discussing this disease?\"")
 library(ggplot2)
 library(stringr)
 library(gridExtra)
@@ -102,7 +110,7 @@ plot_vombo <- function(combo, title, subtitle, labels = c('SMP', 'BDLP')) {
     scale_fill_brewer(palette = "Set1") +  # Choose a color palette (e.g., Set1)
     theme_minimal() +  # Start with a minimal theme
     theme(
-      text = element_text(family = "Arial", size = 12, color = "black"),
+      text = element_text(family = "Arial", size = 14, color = "black"),
       axis.title.x = element_text(size = 14),
       axis.title.y = element_text(size = 14),
       plot.title = element_text(size = 16, face = "bold"),
@@ -111,12 +119,12 @@ plot_vombo <- function(combo, title, subtitle, labels = c('SMP', 'BDLP')) {
       panel.grid.major = element_line(color = "white", linetype = "dotted"),
       panel.grid.minor = element_blank(),
       axis.line = element_line(color = "black", size = 0.5),
-      axis.text = element_text(size = 10, angle = 45, hjust = 1),  # Rotate x-axis labels
+      axis.text = element_text(size = 14, angle = 55, hjust = 1),  # Rotate x-axis labels
       axis.ticks = element_line(color = "black", size = 0.5),
       legend.position = "right",
       legend.background = element_rect(fill = "white", color = "black"),
       legend.key = element_rect(fill = "white"),
-      legend.text = element_text(size = 10),
+      legend.text = element_text(size = 14),
       aspect.ratio = 1,  # Adjust the aspect ratio as needed
       plot.margin = margin(0, 0, 0, 00)  # Adjust the margins as needed
     ))
@@ -148,6 +156,11 @@ sar <- read_delim("~/spvis/data/responses.tsv",
                         "\t", escape_double = FALSE, trim_ws = TRUE)
 sar <- sar[complete.cases(sar),]
 sar <- sar[sar$smdp == T,]
+
+sar2 <- read_delim("~/spvis/data/responses.tsv", 
+                  "\t", escape_double = FALSE, trim_ws = TRUE)
+sar2 <- sar[complete.cases(sar),]
+sar2 <- sar[sar$smdp == T,]
 
 print(plot_vombo(rbind(extract_question(sar, 'q1', T, F, order = q1_order), extract_question(sar, 'q1', T, T, order = q1_order)),
                  "Proportion of Responses to Q1", 
