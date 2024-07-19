@@ -130,7 +130,7 @@ plot_vombo <- function(combo, title, subtitle, labels = c('SMP', 'BDLP')) {
     ))
 }
 print_plot <- function(plot, name) {
-  png(name, units="in", width=7, height=7, res=300)
+  png(name, units="in", width=8, height=7, res=300)
   print(plot)
   dev.off()
 }

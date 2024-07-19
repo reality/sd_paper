@@ -68,4 +68,10 @@ We don't include the original JSON files with the responses, but the data sheet 
 
 This is produced using [Klarigi](https://github.com/reality/klarigi) 
 
-klarigi --debug --data data/create_facet_counts/smdp_constitutional.tsv -o data/hp.owl --verbose --output-type=latex --output-scores --scores-only --egl --min-exclusion=0 --max-inclusion=0.9 --min-ic=0.4 --min-inclusion=0
+klarigi --data data/klarigi_input/input.tsv --resnik-ic --debug --min-exclusion=0 --min-ic=0.6 -o data/hp.owl --output-scores --output-type=latex --egl --min-inclusion=0.02 --scores-only
+
+# Table 3
+
+klarigi --debug --data data/create_facet_counts/bldp_constitutional.tsv -o data/hp.owl --verbose --output-type=latex --output-scores --scores-only --egl --min-exclusion=0 --min-ic=0 --min-inclusion=0.04 --include-only-classes=HP:0025142
+
+klarigi --debug --data data/create_facet_counts/smdp_facet_profiles.tsv --group="smdp_all_constitutional" -o data/hp.owl --verbose --output-type=latex --output-scores --scores-only --egl --min-exclusion=0 --min-ic=0 --min-inclusion=0.04 --include-only-classes=HP:0025142

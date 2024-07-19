@@ -108,9 +108,10 @@ disease_facets.each {
 
   facetMatrix[name] = phenotypeFacets.collectEntries { [ (it.getKey()): 0 ] }
   allScores.findAll { allDiseasesInFacet.contains(it.getKey()) }.each { doid, associations ->
+  if(!(associations.bldp.size() > 0)) { return; }
     associations.smdp.each { hpId, v ->
       phenotypeFacets.each { pFacet, members ->
-        if(v.novel && members.contains(hpId)) { facetMatrix[name][pFacet]++ }
+        if(v.novel && v.significant && members.contains(hpId)) { facetMatrix[name][pFacet]++ }
       }
     }
   }

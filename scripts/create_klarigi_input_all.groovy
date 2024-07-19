@@ -4,6 +4,7 @@ def allScores = new JsonSlurper().parseText(new File('data/create_output_json/da
 def out = []
 def c = 0
 allScores.each { doid, assoc ->
+  if(assoc.mappings == null || assoc.bldp.size() == 0) { return; }
   assoc.smdp.findAll { k, v -> v.novel && v.significant  }.each { k, v ->
     out << "${c++}\t$k\tall"
   }

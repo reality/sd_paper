@@ -88,6 +88,7 @@ def addCount = { k ->
   counts[k]++
   overallCount++
 }
+def pout = new PrintWriter(new BufferedWriter(new FileWriter("data/process_transactions/propagated_transactions.tsv")))
 new File('./data/raw_transactions.tsv').eachLine { l ->
   if(((++i) % 1000000) == 0) { println "Processing record $i" }
   def f = l.split('\t')
@@ -128,10 +129,14 @@ new File('./data/raw_transactions.tsv').eachLine { l ->
     }
   }
 
+  pout.println(a.collect { it.getKey() }.join(';') + '\t' + b.collect { it.getKey() }.join(';') )
+
   //println "Record: ${transacRecord}"
   transactionProfile << transacRecord
   //println " "
 }
+
+pout.flush() ; pout.close()
 
 // Should have just built them separately but eh
 allDiseases = allDiseases.keySet().toList()

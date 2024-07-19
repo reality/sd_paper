@@ -55,9 +55,11 @@ def facetProps = facets.collectEntries {
 def bPWriter = new BufferedWriter(new FileWriter('data/create_facet_counts/bldp_facet_profiles.tsv'))
 def sPWriter = new BufferedWriter(new FileWriter('data/create_facet_counts/smdp_facet_profiles.tsv'))
 def sPNWriter = new BufferedWriter(new FileWriter('data/create_facet_counts/smdp_novel_facet_profiles.tsv'))
+def ukbWriter = new BufferedWriter(new FileWriter('data/create_facet_counts/ukb_novel_facet_profiles.tsv'))
 def c1 = 0
 def c2 = 0
 def c3 = 0
+def c4 = 0
 def allScores = new JsonSlurper().parseText(new File('data/create_output_json/data.json').text).profiles
 
 def novelFacetCounts = [:]
@@ -67,34 +69,47 @@ facets.each { facet ->
     ws: 0,
     dp: 0,
     wsn: 0,
+    ukb: 0
   ]
 
   def ce = fac.getOWLClass(IRI.create(facet[1]))
   def scs = reasoner.getSubClasses(ce, false).collect { it.getRepresentativeElement().getIRI().toString().split('/').last()replace('_',':') }.unique(false)
   
   allScores.each { doid, ass ->
+  println ass.bldp.size()
+    if(!(ass.bldp.size() > 0)) { return; }
+
     ass.smdp.each { k, v -> 
       if(!v.significant) { return; }
       if(scs.contains(k)) { 
         facetCounts[facet[0]].ws++ 
         if(v.novel) {
           facetCounts[facet[0]].wsn++
-          sPNWriter.write("${c3++}\t$k\tsmdp_novel_${facet[0].trim()}\n")
+          sPNWriter.write("${c3++}\t$k\tsmdp_novel_${facet[0].trim()};all\n")
         }
-        sPWriter.write("${c1++}\t$k\tsmdp_all_${facet[0].trim()}\n")
+        sPWriter.write("${c1++}\t$k\tsmdp_all_${facet[0].trim()};all\n")
       } 
     } 
-    ass.bldp.each { k, v -> if(scs.contains(k)) { 
+    ass.bldp.each { k, v -> 
+    if(scs.contains(k)) { 
       facetCounts[facet[0]].dp++ 
-        bPWriter.write("${c2++}\t$k\tbldp_all_${facet[0].trim()}\n")
+      bPWriter.write("${c2++}\t$k\tbldp_all_${facet[0].trim()};all\n")
     } 
     } 
+
+    ass.ukbb.each { k, v ->
+    if(scs.contains(k)) { 
+      facetCounts[facet[0]].ukb++ 
+      ukbWriter.write("${c4++}\t$k\tukb_all_${facet[0].trim()};all\n")
+    } 
+    }
   }
 }
 
 bPWriter.flush() ; bPWriter.close()
 sPWriter.flush() ; sPWriter.close()
 sPNWriter.flush() ; sPNWriter.close()
+ukbWriter.flush() ; ukbWriter.close()
 
 def dTotal = facetCounts.collect { k, v -> v.dp }.sum()
 facetCounts.each { k, v -> v.dp = (v.dp / dTotal) / facetProps[k] }
@@ -104,6 +119,10 @@ facetCounts.each { k, v -> v.ws = (v.ws / wTotal)  / facetProps[k] }
 
 def wnTotal = facetCounts.collect { k, v -> v.wsn }.sum()
 facetCounts.each { k, v -> v.wsn = (v.wsn / wnTotal)  / facetProps[k] }
+
+def ukTotal = facetCounts.collect { k, v -> v.ukb }.sum()
+facetCounts.each { k, v -> v.ukb = (v.ukb / ukTotal)  / facetProps[k] }
+
 
 def out = 'facet\tSocial Media\tLiterature\tSocial Media Novel\n' + facetCounts.collect { k, v -> "$k\t${v.ws}\t${v.dp}\t${v.wsn}" }.join('\n').replaceAll('0E\\+10','0')
 new File('data/create_facet_counts/facet_counts.tsv').text = out

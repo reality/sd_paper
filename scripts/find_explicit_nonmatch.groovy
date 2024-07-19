@@ -35,6 +35,9 @@ import java.util.concurrent.atomic.*
 import groovyx.gpars.*
 import org.codehaus.gpars.*
 
+def toRemove = new File('data/review/correctness.tsv').text.split('\n').findAll { it.split('\t')[1] == 'Y' }.collect { it.split('\t')[0] }
+
+
 def ic = [:]
 new File('data/get_ic/disease_ic.tsv').splitEachLine('\t') {
   ic[it[0].tokenize('/').last().replace('_',':')] = Float.parseFloat(it[1])
@@ -73,6 +76,7 @@ def smAssoc = [:]
 new File('./data/qval/associations.tsv').splitEachLine('\t') {
   if(PARENTFIX && ic[it[1]] < IC_CUTOFF) { return; }
   if(it[0] == 'X1') { return; }
+  if(toRemove.contains(it[1])) { println 'meow' ; return;  }
   if(litAssoc.containsKey(it[0])) { matched = true }
   def pmi = Double.parseDouble(it[2])
   if(pmi > 0) { 
@@ -111,8 +115,10 @@ def reasoner = elkFactory.createReasoner(hp, config)
 
 def smOnly = [:]
 def i = 0
+def litNovelOut = []
 smAssoc.each { k, v ->
   println "${++i}/${smAssoc.size()}"
+
 	smOnly[k] = v.collectEntries { co ->
     def tid = co[0]
     def ce = fac.getOWLClass(IRI.create('http://purl.obolibrary.org/obo/' + tid.replace(':', '_')))
@@ -127,6 +133,15 @@ smAssoc.each { k, v ->
     ]]
 	}
 
+  if(litAssoc.containsKey(k)) {
+    def vt = v.collect { co -> co[0] }
+    litAssoc[k].each { l ->
+      def ce = fac.getOWLClass(IRI.create('http://purl.obolibrary.org/obo/' + l.replace(':', '_')))
+      def subclasses = reasoner.getSubClasses(ce, false).collect { it.getRepresentativeElement().getIRI().toString().split('/').last().replace('_',':') }.unique(false)
+      litNovelOut << !vt.contains(l) && !subclasses.any { vt.contains(it) }
+    }
+  }
+
   println "Found ${smOnly[k].size()} phenotypes out of ${smAssoc[k].size()} (lit phenotypes: ${litAssoc.containsKey(k) ? litAssoc[k].size() : 'none'})!"
 }
 
@@ -138,5 +153,8 @@ smOnly.each { k, v ->
     out << "$k\t"+oo
   } 
 }
+
+println 'literature total: '+litNovelOut.size()
+println 'literature novel: '+litNovelOut.findAll { it == true }.size()
 
 new File('data/find_explicit_nonmatch/explicit_smonly.tsv').text = out.join('\n')
