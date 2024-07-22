@@ -52,7 +52,7 @@ import slib.sml.sm.core.utils.SMconf;
 import slib.utils.ex.SLIB_Exception;
 import slib.utils.impl.Timer;
 
-def allScores = new JsonSlurper().parseText(new File('data/create_output_json/data.json').text).profiles.collectEntries { k, v ->
+def allScores = new JsonSlurper().parseText(new File('data/create_output_json/data.json').text).profiles.findAll {k, v -> v.bldp.size() > 0}.collectEntries { k, v ->
   [(k): [ 
     ws: v.smdp.collect { it.getKey() },
     dp: v.bldp.collect { it.getKey() }

@@ -36,6 +36,8 @@ import groovyx.gpars.*
 import org.codehaus.gpars.*
 import groovy.json.*
 
+// this is such a cursed script, what was I thinking? I mean, impressive that I just hacked it out, I guess. 
+
 def labels = [:]
 new File('../synonym_expansion_validation/hpo/unexpanded_all.txt').splitEachLine('\t') {
   it[1] = it[1].tokenize('/').last().replace('_',':')
@@ -44,8 +46,10 @@ new File('../synonym_expansion_validation/hpo/unexpanded_all.txt').splitEachLine
 def allScores = new JsonSlurper().parseText(new File('data/create_output_json/data.json').text).profiles
 def allClasses = [:]
 allScores.each { k, v ->
+if(v.mappings && v.bldp.size() > 0) {
   v.bldp.each { hp, vv -> allClasses[hp] = true }
   v.smdp.each { hp, vv -> allClasses[hp] = true }
+}
 }
 
 def manager = OWLManager.createOWLOntologyManager()
@@ -61,7 +65,7 @@ def df = [ "subclass\tsuperclass" ]
 def processClass
 def vertexHeat = [:]
 def facetChildren
-def TO_PROC = 'http://purl.obolibrary.org/obo/HP_0025142'
+def TO_PROC = 'http://purl.obolibrary.org/obo/HP_0012531'
 processClass = { iri -> 
   def scs = reasoner.getSubClasses(fac.getOWLClass(IRI.create(iri)), true).collect { it.getRepresentativeElement().getIRI().toString() }.unique(false)
   scs = scs.findAll { it.indexOf('owl#Nothing') == -1 }.findAll { allClasses.containsKey(convertIri(it)) }
@@ -73,8 +77,10 @@ processClass = { iri ->
       smdp: 0
     ]
     allScores.collect { k, v -> 
-      v.bldp.each { hpid, vv -> if(scc.contains(hpid) || convertIri(iri) == hpid) { vertexHeat[iri].bldp++ } }
-      v.smdp.each { hpid, vv -> if(scc.contains(hpid) || convertIri(iri) == hpid) { vertexHeat[iri].smdp++ }}
+      if(v.mappings && v.bldp.size() > 0) {
+        v.bldp.each { hpid, vv -> if(scc.contains(hpid) || convertIri(iri) == hpid) { vertexHeat[iri].bldp++ } }
+        v.smdp.each { hpid, vv -> if(scc.contains(hpid) || convertIri(iri) == hpid) { vertexHeat[iri].smdp++ }}
+      } 
     }
     if(iri != TO_PROC) { 
       vertexHeat[iri].bldp = vertexHeat[iri].bldp / vertexHeat[TO_PROC].bldp 
@@ -84,7 +90,7 @@ processClass = { iri ->
 
   scs.each { scIri ->
     df << "${labels[convertIri(iri)]}\t${labels[convertIri(scIri)]}"
-if(labels[convertIri(scIri)] == null) { println scIri }
+    if(labels[convertIri(scIri)] == null) { println scIri }
     processClass(scIri)
   }
 }

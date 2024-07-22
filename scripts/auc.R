@@ -3,7 +3,7 @@ sim_class <- read.delim("data/create_ws_dis-dis_network/ws_dis_sim.tsv", header 
 sim_class$V4 <- as.factor(sim_class$V4)
 
 print("enrichment")
-AUC::roc(sim_class$V3, sim_class$V4)
+AUC::roc(sim_class$V4, sim_class$V3)
 
 
 sim_class <- NULL
@@ -18,4 +18,5 @@ plot(a)
 ms2 <- ms[ms$V3 <= 1,]
 library(pROC)
 
+auc(sim_class$V4, sim_class$V3)
 ci(roc(sim_class$V4, sim_class$V3))

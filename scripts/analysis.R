@@ -124,7 +124,8 @@ colors_in=c(    rgb(90/255, 130/255, 180/255, 0.5, maxColorValue = 1),  # darker
                 rgb(110/255, 90/255, 220/255, 0.6, maxColorValue = 1)  # darker version of previous light azure # new color, a very light azure with slightly more transparency # new color
 )
 
-png("con.png", units="in", width=7, height=6, res=300)
+CairoPDF(file = "con.pdf", width = 7, height = 6)
+#png("con.png", units="in", width=7, height=6, res=300)
 par(mar = c(0,0,0,0))
 radarchart(facet_counts_f,
            pfcol=colors_in , plwd=4 , plty=1,
@@ -136,6 +137,8 @@ radarchart(facet_counts_f,
            vlcex=.9,
 )
 legend(x=.6, y=1.2, legend = c("BDLP", "SMP"), bty = "n", pch=20 , col=colors_in , text.col = "grey", cex=1, pt.cex=2)
+
+text(x = -1.2, y = 1.12, labels = expression(bold("d)")), cex = 2)
 dev.off()
 cor.test(facet_counts$`BLDP Constitutional Symptoms`, facet_counts$`Constitutional Symptoms`, method='spearman')
 cor.test(facet_counts$Diseases, facet_counts$`Social Media Novel`, method='spearman')
@@ -188,7 +191,7 @@ heatmaply(matrev,
           k_col=2,
           show_dendrogram = F,
           dpi=300,
-          file='heatmap.png')
+          file='heatmap.pdf')
 
 ggsave('heatmap.png', s)
 saveWidget(hmplot, file = "heatmap.png", selfcontained = FALSE)
